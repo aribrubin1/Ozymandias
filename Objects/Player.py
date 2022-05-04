@@ -4,22 +4,34 @@ from Variables import *
 class Player(GameObject):
     def __init__(self, rect, Health,screen,grid):
         super().__init__(rect)
-        self.velocity = 3
+        #speed
+        self.horvel = 0
+        self.vervel = 0
+        self.velcap = 3
+        self.velocity = 2
+        self.pickup = 0.1
+        #Stats
         self.Health = Health
         self.MaxHealth = Health
+        #Position
         self.centrex = self.rect.x+int(PLAYERLENGTH/3)
         self.centrey = self.rect.y+int(PLAYERLENGTH/3)
         self.gridpos = [int(round(self.centrex/GRIDWIDTH)),int(round(self.centrey/GRIDWIDTH))]
+        #Movement
         self.screen = screen
         self.grid = grid
         self.history = []
 
     def MoveRight(self):
         self.checkout()
-
         if self.collisiondetect("R"):
             return
-        self.rect.x += self.velocity
+        if(self.horvel<0):
+            self.horvel=0
+        self.rect.x += self.horvel
+        if (abs(self.horvel+self.pickup) < self.velcap):
+            self.horvel += self.pickup
+
         self.centrex = self.rect.x + int(PLAYERLENGTH / 2)
         self.gridpos[0] = int(round(self.centrex/GRIDWIDTH))
         self.checkout()
@@ -29,7 +41,12 @@ class Player(GameObject):
         self.checkout()
         if self.collisiondetect("L"):
             return
-        self.rect.x -= self.velocity
+        if (self.horvel > 0):
+            self.horvel = 0
+        self.rect.x += self.horvel
+        if(abs(self.horvel-self.pickup)<self.velcap):
+            self.horvel -= self.pickup
+
         self.centrex = self.rect.x + int(PLAYERLENGTH / 2)
         self.gridpos[0] = int(round(self.centrex / GRIDWIDTH))
         self.checkout()
@@ -38,7 +55,12 @@ class Player(GameObject):
         self.checkout()
         if self.collisiondetect("U"):
             return
-        self.rect.y -= self.velocity
+        if(self.vervel>0):
+            self.vervel=0
+        self.rect.y += self.vervel
+        if (abs(self.vervel-self.pickup) < self.velcap):
+            self.vervel -= self.pickup
+
         self.centrey = self.rect.y+int(PLAYERLENGTH/2)
         self.gridpos[1] = int(round(self.centrey / GRIDWIDTH))
         self.checkout()
@@ -47,7 +69,12 @@ class Player(GameObject):
         self.checkout()
         if self.collisiondetect("D"):
             return
-        self.rect.y += self.velocity
+        if (self.vervel < 0):
+            self.vervel = 0
+        self.rect.y += self.vervel
+        if (abs(self.vervel+self.pickup) < self.velcap):
+            self.vervel += self.pickup
+
         self.centrey = self.rect.y+int(PLAYERLENGTH/2)
         self.gridpos[1] = int(round(self.centrey / GRIDWIDTH))
         self.checkout()
@@ -86,7 +113,6 @@ class Player(GameObject):
 
     def rollback(self):
         while self.collisiondetect("P") and len(self.history)!=0:
-            print("rollback")
             lastplace = self.history.pop()
             self.rect.x = lastplace[0]
             self.rect.y = lastplace[1]
