@@ -28,6 +28,7 @@ class Player(GameObject):
             return
         if(self.horvel<0):
             self.horvel=0
+
         self.rect.x += self.horvel
         if (abs(self.horvel+self.pickup) < self.velcap):
             self.horvel += self.pickup
